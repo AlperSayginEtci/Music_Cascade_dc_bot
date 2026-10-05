@@ -27,6 +27,7 @@ ffmpeg_options = {
 
 # Debug için ayrı bir ytdl instance (format listesi görmek için)
 ytdl_debug = yt_dlp.YoutubeDL({**ytdl_format_options, 'quiet': False, 'no_warnings': False})
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
