@@ -25,7 +25,9 @@ ffmpeg_options = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
 }
 
-ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
+# Debug için ayrı bir ytdl instance (format listesi görmek için)
+ytdl_debug = yt_dlp.YoutubeDL({**ytdl_format_options, 'quiet': False, 'no_warnings': False})
+
 
 class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
@@ -37,7 +39,26 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+
+        # Debug: Mevcut formatları logla
+        def extract_with_debug():
+            try:
+                info = ytdl_debug.extract_info(url, download=False, process=False)
+                if info and 'formats' in info:
+                    fmts = info['formats']
+                    print(f"[DEBUG] {len(fmts)} format mevcut. Ses formatları:")
+                    for f in fmts:
+                        if f.get('acodec') != 'none' or f.get('vcodec') == 'none':
+                            print(f"  ID={f.get('format_id')} ext={f.get('ext')} proto={f.get('protocol')} abr={f.get('abr')}")
+                elif info is None:
+                    print("[DEBUG] info=None geldi, video bulunamadı veya cookie hatası")
+                else:
+                    print("[DEBUG] 'formats' anahtarı yok")
+            except Exception as e:
+                print(f"[DEBUG] Format listesi alınamadı: {e}")
+            return ytdl.extract_info(url, download=not stream)
+
+        data = await loop.run_in_executor(None, extract_with_debug)
 
         if data is None:
             raise Exception('Could not retrieve video data from YouTube.')
