@@ -10,12 +10,25 @@ from keep_alive import keep_alive
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+import base64
+
 # YouTube Çerezlerini dosyaya yaz
+youtube_cookies_b64 = os.getenv('YOUTUBE_COOKIES_B64')
 youtube_cookies = os.getenv('YOUTUBE_COOKIES')
-if youtube_cookies:
+
+if youtube_cookies_b64:
+    try:
+        decoded = base64.b64decode(youtube_cookies_b64).decode('utf-8')
+        with open('cookies.txt', 'w', encoding='utf-8') as f:
+            f.write(decoded)
+        print("YouTube çerezleri (Base64'ten) başarıyla oluşturuldu.")
+    except Exception as e:
+        print(f"Base64 çerez çözme hatası: {e}")
+elif youtube_cookies:
     with open('cookies.txt', 'w', encoding='utf-8') as f:
         f.write(youtube_cookies)
-    print("YouTube çerezleri (cookies.txt) oluşturuldu.")
+    print("YouTube çerezleri (Düz Metin) oluşturuldu.")
+
 
 
 class MusicBot(commands.Bot):
