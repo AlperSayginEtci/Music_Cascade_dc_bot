@@ -5,7 +5,7 @@ import yt_dlp
 import asyncio
 
 ytdl_format_options = {
-    'format': 'bestaudio[protocol=https]/bestaudio[protocol=http]/bestaudio',
+    'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
@@ -39,10 +39,20 @@ class YTDLSource(discord.PCMVolumeTransformer):
         loop = loop or asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
 
+        if data is None:
+            raise Exception('Could not retrieve video data from YouTube.')
+
         if 'entries' in data:
             data = data['entries'][0]
 
-        filename = data['url'] if stream else ytdl.prepare_filename(data)
+        if stream:
+            # m3u8 manifest URL veya direkt URL'yi al
+            filename = data.get('url') or data.get('manifest_url')
+            if not filename:
+                raise Exception('No streamable URL found for this video.')
+        else:
+            filename = ytdl.prepare_filename(data)
+
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
 class Music(commands.Cog):
