@@ -5,7 +5,7 @@ import yt_dlp
 import asyncio
 
 ytdl_format_options = {
-    'format': '140/251/250/249/139/bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best',
+    'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
@@ -25,8 +25,6 @@ ffmpeg_options = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
 }
 
-# Debug için ayrı bir ytdl instance (format listesi görmek için)
-ytdl_debug = yt_dlp.YoutubeDL({**ytdl_format_options, 'quiet': False, 'no_warnings': False})
 ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 
@@ -40,26 +38,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
         loop = loop or asyncio.get_event_loop()
-
-        # Debug: Mevcut formatları logla
-        def extract_with_debug():
-            try:
-                info = ytdl_debug.extract_info(url, download=False, process=False)
-                if info and 'formats' in info:
-                    fmts = info['formats']
-                    print(f"[DEBUG] {len(fmts)} format mevcut. Ses formatları:")
-                    for f in fmts:
-                        if f.get('acodec') != 'none' or f.get('vcodec') == 'none':
-                            print(f"  ID={f.get('format_id')} ext={f.get('ext')} proto={f.get('protocol')} abr={f.get('abr')}")
-                elif info is None:
-                    print("[DEBUG] info=None geldi, video bulunamadı veya cookie hatası")
-                else:
-                    print("[DEBUG] 'formats' anahtarı yok")
-            except Exception as e:
-                print(f"[DEBUG] Format listesi alınamadı: {e}")
-            return ytdl.extract_info(url, download=not stream)
-
-        data = await loop.run_in_executor(None, extract_with_debug)
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
 
         if data is None:
             raise Exception('Could not retrieve video data from YouTube.')
@@ -68,7 +47,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data['entries'][0]
 
         if stream:
-            # m3u8 manifest URL veya direkt URL'yi al
             filename = data.get('url') or data.get('manifest_url')
             if not filename:
                 raise Exception('No streamable URL found for this video.')
@@ -76,6 +54,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
             filename = ytdl.prepare_filename(data)
 
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
 
 class Music(commands.Cog):
     def __init__(self, bot):
