@@ -1,7 +1,9 @@
 FROM python:3.10-slim
 
-# FFmpeg kurulumu
-RUN apt-get update && apt-get install -y ffmpeg
+# FFmpeg ve Node.js kurulumu (yt-dlp JS runtime gerektirir)
+RUN apt-get update && apt-get install -y ffmpeg nodejs npm && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
 
 # Çalışma dizinini ayarla
 WORKDIR /app

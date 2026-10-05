@@ -5,7 +5,7 @@ import yt_dlp
 import asyncio
 
 ytdl_format_options = {
-    'format': 'bestaudio[protocol!=m3u8][protocol!=m3u8_native]/bestaudio/best',
+    'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
@@ -16,8 +16,7 @@ ytdl_format_options = {
     'no_warnings': True,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
-    'cookiefile': 'cookies.txt',
-    'extractor_args': {'youtube': ['player_client=WEB']}
+    'cookiefile': 'cookies.txt'
 }
 
 
