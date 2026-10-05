@@ -15,8 +15,8 @@ import subprocess
 
 # yt-dlp'yi başlangıçta güncelle
 try:
-    subprocess.run(['pip', 'install', '-U', 'yt-dlp', '-q'], check=True)
-    print("yt-dlp güncellendi.")
+    subprocess.run(['pip', 'install', '-U', 'yt-dlp', 'yt-dlp-get-pot', '-q'], check=True)
+    print("yt-dlp ve yt-dlp-get-pot güncellendi.")
 except Exception as e:
     print(f"yt-dlp güncelleme hatası: {e}")
 
