@@ -11,6 +11,14 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 import base64
+import subprocess
+
+# yt-dlp'yi başlangıçta güncelle
+try:
+    subprocess.run(['pip', 'install', '-U', 'yt-dlp', '-q'], check=True)
+    print("yt-dlp güncellendi.")
+except Exception as e:
+    print(f"yt-dlp güncelleme hatası: {e}")
 
 # YouTube Çerezlerini dosyaya yaz
 youtube_cookies_b64 = os.getenv('YOUTUBE_COOKIES_B64')
@@ -18,16 +26,23 @@ youtube_cookies = os.getenv('YOUTUBE_COOKIES')
 
 if youtube_cookies_b64:
     try:
-        decoded = base64.b64decode(youtube_cookies_b64).decode('utf-8')
-        with open('cookies.txt', 'w', encoding='utf-8') as f:
+        decoded = base64.b64decode(youtube_cookies_b64, validate=False).decode('utf-8')
+        # CRLF -> LF dönüşümü (yt-dlp Netscape formatı için gerekli)
+        decoded = decoded.replace('\r\n', '\n').replace('\r', '\n')
+        with open('cookies.txt', 'w', encoding='utf-8', newline='\n') as f:
             f.write(decoded)
-        print("YouTube çerezleri (Base64'ten) başarıyla oluşturuldu.")
+        lines = [l for l in decoded.splitlines() if l.strip() and not l.startswith('#')]
+        print(f"YouTube çerezleri başarıyla yazıldı. ({len(lines)} çerez satırı)")
     except Exception as e:
         print(f"Base64 çerez çözme hatası: {e}")
 elif youtube_cookies:
-    with open('cookies.txt', 'w', encoding='utf-8') as f:
-        f.write(youtube_cookies)
+    text = youtube_cookies.replace('\r\n', '\n').replace('\r', '\n')
+    with open('cookies.txt', 'w', encoding='utf-8', newline='\n') as f:
+        f.write(text)
     print("YouTube çerezleri (Düz Metin) oluşturuldu.")
+else:
+    print("UYARI: YOUTUBE_COOKIES_B64 veya YOUTUBE_COOKIES ortam değişkeni bulunamadı!")
+
 
 
 
