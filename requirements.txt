@@ -1,5 +1,5 @@
 discord.py==2.3.2
-yt-dlp
+yt-dlp>=2026.8.19
 PyNaCl
 python-dotenv
 Flask==3.0.3

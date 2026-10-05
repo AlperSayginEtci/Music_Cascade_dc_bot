@@ -91,7 +91,7 @@ class Music(commands.Cog):
                 queue.append(source)
                 await interaction.followup.send(f'📝 Added to queue: **{source.title}**')
         except Exception as e:
-            await interaction.followup.send("An error occurred: Could not play or find the video.")
+            await interaction.followup.send(f"An error occurred while trying to play the video:\n```{e}```")
             print(f"Playback error: {e}")
 
     @app_commands.command(name="pause", description="Pauses the currently playing song")
