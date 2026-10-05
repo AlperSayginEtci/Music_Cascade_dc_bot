@@ -5,7 +5,6 @@ import yt_dlp
 import asyncio
 
 ytdl_format_options = {
-    'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
@@ -16,7 +15,7 @@ ytdl_format_options = {
     'no_warnings': True,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
-    'extractor_args': {'youtube': ['client=IOS,TV']}
+    'cookiefile': 'cookies.txt'
 }
 
 
