@@ -87,9 +87,20 @@ class Music(commands.Cog):
         voice_client = interaction.guild.voice_client
 
         if not voice_client:
-            voice_client = await channel.connect()
+            try:
+                voice_client = await asyncio.wait_for(
+                    channel.connect(self_deaf=True),
+                    timeout=30.0
+                )
+            except asyncio.TimeoutError:
+                await interaction.followup.send("❌ Ses kanalına bağlanılamadı (zaman aşımı). Lütfen tekrar deneyin.")
+                return
+            except Exception as e:
+                await interaction.followup.send(f"❌ Ses kanalına bağlanılamadı: {e}")
+                return
         elif voice_client.channel != channel:
             await voice_client.move_to(channel)
+
 
         try:
             source = await YTDLSource.from_url(search, loop=self.bot.loop, stream=True)
