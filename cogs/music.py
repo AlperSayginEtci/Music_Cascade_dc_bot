@@ -5,7 +5,7 @@ import yt_dlp
 import asyncio
 
 ytdl_format_options = {
-    'format': 'bestaudio/bestvideo+bestaudio/best/m4a/mp4/webm',
+    'format': 'bestaudio[protocol=https]/bestaudio[protocol=http]/bestaudio',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
