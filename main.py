@@ -10,6 +10,14 @@ from keep_alive import keep_alive
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
+# YouTube Çerezlerini dosyaya yaz
+youtube_cookies = os.getenv('YOUTUBE_COOKIES')
+if youtube_cookies:
+    with open('cookies.txt', 'w', encoding='utf-8') as f:
+        f.write(youtube_cookies)
+    print("YouTube çerezleri (cookies.txt) oluşturuldu.")
+
+
 class MusicBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
